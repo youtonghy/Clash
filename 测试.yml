@@ -1,0 +1,158 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: :9090
+dns:
+  nameserver:
+    - https://223.5.5.5/dns-query
+    - https://223.6.6.6/dns-query
+    - https://doh.pub/dns-query
+proxy-providers:
+  provider:
+    type: http
+    url: 订阅链接
+    interval: 3600
+    path: ./provider1.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  HK:
+    type: http
+    url: 订阅链接
+    interval: 3600
+    path: ./HK.yaml
+    filter: 香港
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  JP:
+    type: http
+    url: 
+    interval: 3600
+    path: ./JP.yaml
+    filter: 日本
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  SG:
+    type: http
+    url: 订阅链接
+    interval: 3600
+    path: ./SG.yaml
+    filter: 新加坡
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+  US:
+    type: http
+    url: 订阅链接
+    interval: 3600
+    path: ./US.yaml
+    filter: 美国
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - 节点
+      - DIRECT      
+      - 香港
+      - 日本
+      - 新加坡
+      - 美国 
+  - name: 节点
+    type: select
+    use:
+      - provider
+  - name: Apple
+    type: select
+    proxies:
+      - 节点
+      - DIRECT      
+      - 香港
+      - 日本
+      - 新加坡
+      - 美国      
+  - name: Telegram
+    type: select
+    proxies:
+      - 节点
+      - DIRECT      
+      - 香港
+      - 日本
+      - 新加坡
+      - 美国     
+  - name: Netflix
+    type: select
+    proxies:
+      - 节点
+      - DIRECT      
+      - 香港
+      - 日本
+      - 新加坡
+      - 美国     
+  - name: 香港
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    use:
+      - HK 
+  - name: 日本
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    use:
+      - JP
+  - name: 新加坡
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    use:
+      - SG     
+  - name: 美国
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    use:
+      - US         
+rule-providers:
+  Apple:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt
+    path: ./ruleset/apple.yaml
+    interval: 86400
+  iCloud:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt
+    path: ./ruleset/icloud.yaml
+    interval: 86400
+  Telegram:
+    type: http
+    behavior: ipcidr
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt
+    path: ./ruleset/icloud.yaml
+    interval: 86400
+  Netflix:
+    type: http
+    behavior: classical
+    path: ./Filter/Netflix.yaml
+    url: https://cdn.jsdelivr.net/gh/Semporia/Clash-X@master/Filter/Netflix.yaml
+    interval: 3600
+rules:
+  - RULE-SET,Netflix,Netflix
+  - RULE-SET,Telegram,Telegram
+  - RULE-SET,iCloud,Apple
+  - RULE-SET,Apple,Apple
+  - GEOIP,CN,DIRECT
+  - MATCH,节点选择
