@@ -123,3 +123,4 @@ payload:
   - '+.www.apple.com'
   - '+.xp.apple.com'
   - '+.apple.com'
+  - '+.cdn-apple.com'
